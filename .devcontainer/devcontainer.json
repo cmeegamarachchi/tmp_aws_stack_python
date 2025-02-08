@@ -1,0 +1,40 @@
+{
+  "name": "appsolve application blocks python api starter kit",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "forwardPorts": [
+    8000
+  ],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "prettier.printWidth": 120,
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[python]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "ms-python.black-formatter",
+        },
+      "workbench.iconTheme": "material-icon-theme"
+      },
+      "extensions": [
+        "PKief.material-icon-theme",
+        "GitHub.copilot", // GitHub Copilot
+        "ms-azuretools.vscode-docker", // Docker
+        "humao.rest-client",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter"
+      ],
+    }
+  },
+  "runArgs": [
+    "--privileged"
+  ],
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "postCreateCommand": "docker --version && docker-compose --version",
+  "remoteUser": "vscode"
+}
