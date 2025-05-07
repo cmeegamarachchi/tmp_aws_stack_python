@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     build-essential && \
     pip3 install --upgrade pip && \
+    pip3 install ipykernel jupyter && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set the default shell
