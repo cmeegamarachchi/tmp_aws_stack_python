@@ -1,0 +1,19 @@
+{
+  "name": "aws-stack-dev",
+  "version": "1.0.0",
+  "description": "Development environment for AWS Stack project",
+  "scripts": {
+    "setup": "./scripts/setup.sh",
+    "deploy": "./scripts/deploy.sh",
+    "destroy": "./scripts/destroy.sh",
+    "dev:frontend": "cd app && npm run dev",
+    "dev:api": "cd api && npm run dev",
+    "build:frontend": "cd app && npm run build",
+    "build:api": "cd api && npm run build",
+    "install:all": "npm run install:frontend && npm run install:api",
+    "install:frontend": "cd app && npm install",
+    "install:api": "cd api && npm install"
+  },
+  "devDependencies": {},
+  "private": true
+}
