@@ -2,8 +2,8 @@
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
 
 # Define versions for version locking
-ARG NODE_VERSION=20.17.0
-ARG AWS_CLI_VERSION=2.15.30
+ARG NODE_VERSION=22.17.0
+ARG AWS_CLI_VERSION=2.27.46
 ARG TERRAFORM_VERSION=1.12.2
 
 # Install system dependencies

@@ -23,6 +23,8 @@ print_header() {
 start_api() {
     print_header "Starting API server..."
     
+    cd ..
+
     cd api || exit 1
     
     print_status "Starting API server on http://localhost:3001"
