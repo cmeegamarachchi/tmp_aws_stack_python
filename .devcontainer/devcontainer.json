@@ -28,12 +28,7 @@
       "extensions": [
         "PKief.material-icon-theme",
         "GitHub.copilot",
-        "ms-azuretools.vscode-docker",
         "humao.rest-client",
-        "ms-python.python",
-        "ms-python.vscode-pylance",
-        "ms-python.black-formatter",
-        "ms-toolsai.jupyter",
         "hashicorp.terraform",
         "ms-vscode.vscode-typescript-next",
         "bradlc.vscode-tailwindcss",
