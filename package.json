@@ -1,0 +1,28 @@
+{
+  "name": "contact-management-system",
+  "version": "1.0.0",
+  "description": "Full-stack contact management system with React frontend and AWS Lambda backend",
+  "scripts": {
+    "setup": "./scripts/setup.sh",
+    "dev": "./scripts/start-dev.sh",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:prod": "./scripts/deploy.sh prod",
+    "cleanup": "./scripts/cleanup.sh",
+    "cleanup:local": "./scripts/cleanup.sh dev local",
+    "cleanup:aws": "./scripts/cleanup.sh dev aws"
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "aws",
+    "lambda",
+    "terraform",
+    "contacts"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "workspaces": [
+    "api",
+    "app"
+  ]
+}
