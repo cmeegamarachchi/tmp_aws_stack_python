@@ -10,10 +10,6 @@
       "settings": {
         "prettier.printWidth": 120,
         "terminal.integrated.shell.linux": "/bin/bash",
-        "[python]": {
-          "editor.formatOnSave": true,
-          "editor.defaultFormatter": "ms-python.black-formatter"
-        },
         "[typescript]": {
           "editor.formatOnSave": true
         },
