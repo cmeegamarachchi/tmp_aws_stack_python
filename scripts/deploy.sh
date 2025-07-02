@@ -161,7 +161,7 @@ invalidate_cloudfront() {
     cd infrastructure || exit 1
     
     # Get the CloudFront distribution ID from Terraform output
-    DISTRIBUTION_ID=$(terraform output -raw cloudfront_distribution_domain 2>/dev/null)
+    DISTRIBUTION_ID=$(terraform output -raw cloudfront_distribution_id 2>/dev/null)
     
     if [ ! -z "$DISTRIBUTION_ID" ]; then
         print_status "Invalidating CloudFront cache for distribution: $DISTRIBUTION_ID"
@@ -214,9 +214,7 @@ main() {
     check_aws_config
     build_api
     deploy_infrastructure
-    build_app
-    upload_app
-    invalidate_cloudfront
+    # Note: React app build and upload is now handled by Terraform
     
     print_header "=== Deployment completed successfully! ==="
     show_deployment_info

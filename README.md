@@ -1,6 +1,6 @@
-# Contact Management System
+# AppSolve application blocks AWS starter kit
 
-A full-stack web application built with React.js frontend, TypeScript API backend running on AWS Lambda, and Terraform for infrastructure as code.
+AppSolve application blocks AWS starter kit is a web full stack reference starter kit based on ReactJS, AWS serverless architecture and Infrastructure as Code
 
 ## 🏗️ Architecture
 
@@ -47,16 +47,6 @@ A full-stack web application built with React.js frontend, TypeScript API backen
 ```
 
 ## 🚀 Quick Start
-
-### Prerequisites
-
-Before getting started, ensure you have the following installed:
-
-- **Node.js** (v16 or higher)
-- **npm** (v7 or higher)
-- **Terraform** (v1.0 or higher)
-- **AWS CLI** (v2.0 or higher)
-- **Git**
 
 ### 1. Initial Setup
 
@@ -165,19 +155,11 @@ terraform plan -var="environment=dev"
 terraform apply -var="environment=dev"
 cd ..
 
-# 3. Get API Gateway URL and build React app
-cd app
-echo "VITE_API_URL=$(cd ../infrastructure && terraform output -raw api_gateway_url)" > .env.production
-npm run build
-cd ..
-
-# 4. Upload React app to S3
-BUCKET_NAME=$(cd infrastructure && terraform output -raw s3_bucket_name)
-aws s3 sync app/dist/ s3://$BUCKET_NAME --delete
-
-# 5. Invalidate CloudFront (optional)
-DISTRIBUTION_ID=$(cd infrastructure && terraform output -raw cloudfront_distribution_domain)
-aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
+# Note: The React app is now automatically built and deployed by Terraform!
+# It will:
+# - Build the React app with the correct API Gateway URL
+# - Upload it to S3
+# - Invalidate CloudFront cache
 ```
 
 ## 🔧 Configuration
@@ -287,7 +269,7 @@ To clean both AWS resources and local files:
 
 2. **AWS CLI not configured**:
    ```bash
-   aws configure
+   aws configure sso --use-device-code
    # Enter your credentials
    ```
 
@@ -298,7 +280,21 @@ To clean both AWS resources and local files:
    terraform plan
    ```
 
-4. **Build errors**:
+4. **S3 bucket not empty error during destroy**:
+   If you get a "BucketNotEmpty" error when running `terraform destroy`, manually empty the S3 bucket first:
+   ```bash
+   # Get the bucket name from terraform output
+   cd infrastructure
+   terraform output s3_bucket_name
+   
+   # Empty the bucket (replace with actual bucket name)
+   aws s3 rm s3://your-bucket-name --recursive
+   
+   # Then retry destroy
+   terraform destroy
+   ```
+
+5. **Build errors**:
    ```bash
    # Clean and reinstall dependencies
    rm -rf api/node_modules api/dist

@@ -3,6 +3,11 @@ output "api_gateway_url" {
   value       = module.api_gateway.api_gateway_url
 }
 
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID"
+  value       = module.cloudfront.distribution_id
+}
+
 output "cloudfront_distribution_domain" {
   description = "CloudFront distribution domain name"
   value       = module.cloudfront.distribution_domain_name

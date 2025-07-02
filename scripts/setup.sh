@@ -63,7 +63,7 @@ check_prerequisites() {
 # Setup API dependencies
 setup_api() {
     print_header "Setting up API dependencies..."
-    
+
     cd api || exit 1
     
     if [ ! -f "package.json" ]; then
@@ -152,9 +152,8 @@ main() {
     print_header "=== Setup completed successfully! ==="
     echo
     print_status "Next steps:"
-    echo "  1. For local development: ./scripts/dev.sh"
+    echo "  1. For local development: ./scripts/start-dev.sh"
     echo "  2. To deploy to AWS: ./scripts/deploy.sh"
-    echo "  3. To start local development servers: ./scripts/start-dev.sh"
 }
 
 # Run main function

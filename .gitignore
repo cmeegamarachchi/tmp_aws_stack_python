@@ -50,12 +50,19 @@ ehthumbs.db
 Thumbs.db
 
 # Terraform
-scripts/terraform/*.tfstate
-scripts/terraform/*.tfstate.*
-scripts/terraform/*.tfvars
-scripts/terraform/.terraform/
-scripts/terraform/.terraform.lock.hcl
-scripts/terraform/*.tfplan
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+.terraform/
+.terraform.lock.hcl
+*.tfplan
+infrastructure/.terraform/
+infrastructure/*.tfstate
+infrastructure/*.tfstate.*
+infrastructure/lambda_packages/
+
+.env.production
 
 # AWS Lambda deployment packages
 api/lambda-deployment.zip

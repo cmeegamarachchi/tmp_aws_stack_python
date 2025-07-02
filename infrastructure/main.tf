@@ -9,6 +9,10 @@ terraform {
       source  = "hashicorp/archive"
       version = "~> 2.4"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.2"
+    }
   }
 }
 
@@ -71,4 +75,44 @@ module "cloudfront" {
   common_tags         = local.common_tags
   s3_bucket_name      = module.s3.bucket_name
   s3_website_endpoint = module.s3.website_endpoint
+}
+
+# Build and deploy React app
+resource "null_resource" "react_app_build_deploy" {
+  depends_on = [
+    module.api_gateway,
+    module.s3,
+    module.cloudfront
+  ]
+
+  triggers = {
+    # Rebuild when API Gateway URL changes
+    api_gateway_url = module.api_gateway.api_gateway_url
+    # Rebuild when app source changes (you can add more specific triggers if needed)
+    app_build_hash = filemd5("${path.root}/../app/package.json")
+  }
+
+  provisioner "local-exec" {
+    working_dir = "${path.root}/../app"
+    command = <<-EOT
+      echo "Building React app with API URL: ${module.api_gateway.api_gateway_url}"
+      echo "VITE_API_URL=${module.api_gateway.api_gateway_url}" > .env.production
+      npm install
+      npm run build
+    EOT
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "Uploading React app to S3 bucket: ${module.s3.bucket_name}"
+      aws s3 sync ${path.root}/../app/dist/ s3://${module.s3.bucket_name} --delete
+    EOT
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "Creating CloudFront invalidation for distribution: ${module.cloudfront.distribution_id}"
+      aws cloudfront create-invalidation --distribution-id ${module.cloudfront.distribution_id} --paths "/*"
+    EOT
+  }
 }

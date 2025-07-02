@@ -41,12 +41,42 @@ destroy_infrastructure() {
         exit 0
     fi
     
+    # Empty S3 bucket before destroying to avoid BucketNotEmpty errors
+    print_status "Emptying S3 bucket before destroy..."
+    
+    # Get bucket name from terraform output
+    BUCKET_NAME=$(terraform output -raw s3_bucket_name 2>/dev/null)
+    
+    if [ ! -z "$BUCKET_NAME" ] && [ "$BUCKET_NAME" != "null" ]; then
+        print_status "Found S3 bucket: $BUCKET_NAME"
+        print_status "Emptying S3 bucket contents..."
+        
+        # Remove all objects including versions
+        aws s3api list-object-versions --bucket "$BUCKET_NAME" --output json | \
+        jq -r '.Versions[]?, .DeleteMarkers[]? | "\(.Key) \(.VersionId)"' | \
+        while read key versionId; do
+            if [ ! -z "$key" ] && [ ! -z "$versionId" ]; then
+                aws s3api delete-object --bucket "$BUCKET_NAME" --key "$key" --version-id "$versionId" >/dev/null
+            fi
+        done
+        
+        # Also use simple recursive delete as fallback
+        aws s3 rm s3://"$BUCKET_NAME" --recursive >/dev/null 2>&1 || true
+        
+        print_status "S3 bucket emptied"
+    else
+        print_warning "Could not determine S3 bucket name, skipping bucket cleanup"
+    fi
+    
     # Destroy the infrastructure
     print_status "Destroying Terraform infrastructure..."
     terraform destroy -var="environment=$ENVIRONMENT" -auto-approve
     
     if [ $? -ne 0 ]; then
         print_error "Terraform destroy failed"
+        print_warning "If you're getting S3 bucket errors, try manually emptying the bucket:"
+        print_warning "aws s3 ls | grep contacts-app-$ENVIRONMENT"
+        print_warning "aws s3 rm s3://BUCKET_NAME --recursive"
         exit 1
     fi
     
