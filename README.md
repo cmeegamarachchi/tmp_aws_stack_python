@@ -48,7 +48,112 @@ AppSolve application blocks AWS starter kit is a web full stack reference starte
 
 ## 🚀 Quick Start
 
-### 1. Initial Setup
+### 1. Prerequisites Installation
+
+Before starting, ensure you have the following tools installed with the correct versions:
+
+#### Node.js (v22.17.0)
+
+**macOS (using Homebrew):**
+```bash
+# Install Node Version Manager (nvm)
+brew install nvm
+
+# Install and use specific Node.js version
+nvm install 22.17.0
+nvm use 22.17.0
+nvm alias default 22.17.0
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+# Install Node Version Manager (nvm)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Reload your shell
+source ~/.bashrc
+
+# Install and use specific Node.js version
+nvm install 22.17.0
+nvm use 22.17.0
+nvm alias default 22.17.0
+```
+
+**Windows:**
+```powershell
+# Download and install Node.js v22.17.0 from https://nodejs.org/
+# Or use chocolatey:
+choco install nodejs --version=22.17.0
+```
+
+#### AWS CLI (v2.27.46)
+
+**macOS:**
+```bash
+# Download and install specific version
+curl "https://awscli.amazonaws.com/awscli-exe-macos-2.27.46.pkg" -o "AWSCLIV2.pkg"
+sudo installer -pkg AWSCLIV2.pkg -target /
+```
+
+**Linux:**
+```bash
+# Download and install specific version
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.27.46.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+rm -rf awscliv2.zip aws
+```
+
+**Windows:**
+```powershell
+# Download and install from https://awscli.amazonaws.com/AWSCLIV2-2.27.46.msi
+# Or use chocolatey:
+choco install awscli --version=2.27.46
+```
+
+#### Terraform (v1.12.2)
+
+**macOS (using Homebrew):**
+```bash
+# Install tfenv (Terraform version manager)
+brew install tfenv
+
+# Install and use specific Terraform version
+tfenv install 1.12.2
+tfenv use 1.12.2
+```
+
+**Linux:**
+```bash
+# Download and install specific version
+wget https://releases.hashicorp.com/terraform/1.12.2/terraform_1.12.2_linux_amd64.zip
+unzip terraform_1.12.2_linux_amd64.zip
+sudo mv terraform /usr/local/bin/
+rm terraform_1.12.2_linux_amd64.zip
+```
+
+**Windows:**
+```powershell
+# Download from https://releases.hashicorp.com/terraform/1.12.2/terraform_1.12.2_windows_amd64.zip
+# Extract and add to PATH
+# Or use chocolatey:
+choco install terraform --version=1.12.2
+```
+
+#### Verify Installation
+
+After installing all prerequisites, verify the versions:
+
+```bash
+node --version    # Should output: v22.17.0
+npm --version     # Should output: 10.x.x (comes with Node.js)
+aws --version     # Should output: aws-cli/2.27.46 ...
+terraform --version  # Should output: Terraform v1.12.2
+```
+
+> **💡 Alternative**: If you're using VS Code, you can skip manual installation by using the included dev container (`.devcontainer/`) which has all prerequisites pre-installed with the correct versions.
+
+### 2. Initial Setup
 
 Clone the repository and run the setup script:
 
@@ -69,7 +174,7 @@ This script will:
 - Build the API
 - Initialize Terraform
 
-### 2. Local Development
+### 3. Local Development
 
 To start the development environment with both API and React app:
 
