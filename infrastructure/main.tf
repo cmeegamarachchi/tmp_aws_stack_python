@@ -20,14 +20,34 @@ provider "aws" {
   region = var.aws_region
 }
 
+# Build API first
+resource "null_resource" "api_build" {
+  triggers = {
+    # Rebuild when API source changes
+    api_package_hash = filemd5("${path.root}/../api/package.json")
+    api_src_hash     = sha256(join("", [for f in fileset("${path.root}/../api/src", "**") : filesha256("${path.root}/../api/src/${f}")]))
+  }
+
+  provisioner "local-exec" {
+    working_dir = "${path.root}/../api"
+    command = <<-EOT
+      echo "Building API for deployment..."
+      npm ci --production
+      npm run build
+    EOT
+  }
+}
+
 # Data source for Lambda function zip files
 data "archive_file" "contacts_lambda" {
+  depends_on = [null_resource.api_build]
   type        = "zip"
   source_dir  = "${path.root}/../api/dist"
   output_path = "${path.root}/lambda_packages/contacts.zip"
 }
 
 data "archive_file" "countries_lambda" {
+  depends_on = [null_resource.api_build]
   type        = "zip"
   source_dir  = "${path.root}/../api/dist"
   output_path = "${path.root}/lambda_packages/countries.zip"

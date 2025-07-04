@@ -40,29 +40,6 @@ check_aws_config() {
     print_status "AWS credentials are configured"
 }
 
-# Build the API
-build_api() {
-    print_header "Building API for deployment..."
-    
-    cd api || exit 1
-    
-    # Install production dependencies
-    print_status "Installing production dependencies..."
-    npm ci --production
-    
-    # Build the TypeScript code
-    print_status "Building TypeScript code..."
-    npm run build
-    
-    if [ $? -ne 0 ]; then
-        print_error "Failed to build API"
-        exit 1
-    fi
-    
-    cd ..
-    print_status "API build completed"
-}
-
 # Deploy infrastructure with Terraform
 deploy_infrastructure() {
     print_header "Deploying infrastructure with Terraform..."
@@ -127,9 +104,8 @@ main() {
     echo
     
     check_aws_config
-    build_api
     deploy_infrastructure
-    # Note: React app build and upload is now handled by Terraform
+    # Note: Both API and React app build/upload are now handled by Terraform
     
     print_header "=== Deployment completed successfully! ==="
     show_deployment_info
