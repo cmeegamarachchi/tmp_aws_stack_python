@@ -63,37 +63,6 @@ build_api() {
     print_status "API build completed"
 }
 
-# Build the React app
-build_app() {
-    print_header "Building React app for deployment..."
-    
-    cd app || exit 1
-    
-    # Get the API Gateway URL from Terraform output
-    cd ../infrastructure
-    API_URL=$(terraform output -raw api_gateway_url 2>/dev/null)
-    cd ../app
-    
-    if [ ! -z "$API_URL" ]; then
-        print_status "Using API URL: $API_URL"
-        echo "VITE_API_URL=$API_URL" > .env.production
-    else
-        print_warning "Could not get API URL from Terraform. Using default configuration."
-    fi
-    
-    # Build the React app
-    print_status "Building React app..."
-    npm run build
-    
-    if [ $? -ne 0 ]; then
-        print_error "Failed to build React app"
-        exit 1
-    fi
-    
-    cd ..
-    print_status "React app build completed"
-}
-
 # Deploy infrastructure with Terraform
 deploy_infrastructure() {
     print_header "Deploying infrastructure with Terraform..."
@@ -123,60 +92,6 @@ deploy_infrastructure() {
     
     cd ..
     print_status "Infrastructure deployment completed"
-}
-
-# Upload React app to S3
-upload_app() {
-    print_header "Uploading React app to S3..."
-    
-    cd infrastructure || exit 1
-    
-    # Get the S3 bucket name from Terraform output
-    BUCKET_NAME=$(terraform output -raw s3_bucket_name)
-    
-    if [ -z "$BUCKET_NAME" ]; then
-        print_error "Could not get S3 bucket name from Terraform output"
-        exit 1
-    fi
-    
-    cd ..
-    
-    print_status "Uploading to bucket: $BUCKET_NAME"
-    
-    # Upload the built React app
-    aws s3 sync app/dist/ s3://$BUCKET_NAME --delete
-    
-    if [ $? -ne 0 ]; then
-        print_error "Failed to upload React app to S3"
-        exit 1
-    fi
-    
-    print_status "React app uploaded successfully"
-}
-
-# Invalidate CloudFront cache
-invalidate_cloudfront() {
-    print_header "Invalidating CloudFront cache..."
-    
-    cd infrastructure || exit 1
-    
-    # Get the CloudFront distribution ID from Terraform output
-    DISTRIBUTION_ID=$(terraform output -raw cloudfront_distribution_id 2>/dev/null)
-    
-    if [ ! -z "$DISTRIBUTION_ID" ]; then
-        print_status "Invalidating CloudFront cache for distribution: $DISTRIBUTION_ID"
-        aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
-        
-        if [ $? -eq 0 ]; then
-            print_status "CloudFront cache invalidated"
-        else
-            print_warning "Failed to invalidate CloudFront cache"
-        fi
-    else
-        print_warning "Could not get CloudFront distribution ID"
-    fi
-    
-    cd ..
 }
 
 # Display deployment information
