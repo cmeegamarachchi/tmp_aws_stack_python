@@ -77,29 +77,16 @@ module "cloudfront" {
   s3_website_endpoint = module.s3.website_endpoint
 }
 
-# Build and deploy React app
-resource "null_resource" "react_app_build_deploy" {
+# Deploy React app from pre-built dist folder
+resource "null_resource" "react_app_deploy" {
   depends_on = [
-    module.api_gateway,
     module.s3,
     module.cloudfront
   ]
 
   triggers = {
-    # Rebuild when API Gateway URL changes
-    api_gateway_url = module.api_gateway.api_gateway_url
-    # Rebuild when app source changes (you can add more specific triggers if needed)
-    app_build_hash = filemd5("${path.root}/../app/package.json")
-  }
-
-  provisioner "local-exec" {
-    working_dir = "${path.root}/../app"
-    command = <<-EOT
-      echo "Building React app with API URL: ${module.api_gateway.api_gateway_url}"
-      echo "VITE_API_URL=${module.api_gateway.api_gateway_url}" > .env.production
-      npm install
-      npm run build
-    EOT
+    # Redeploy when any file in the dist folder changes
+    dist_content_hash = sha256(join("", [for f in fileset("${path.root}/../app/dist", "**") : filesha256("${path.root}/../app/dist/${f}")]))
   }
 
   provisioner "local-exec" {

@@ -96,16 +96,51 @@ show_deployment_info() {
     cd ..
 }
 
+build_api(){
+    print_header "Building API..."
+    
+    cd api || exit 1
+
+    node build-lambdas.js
+    
+    if [ $? -ne 0 ]; then
+        print_error "API build failed"
+        exit 1
+    fi
+    
+    print_status "API build completed successfully"
+    cd ..
+}
+
+build_react_app() {
+    print_header "Building React app..."
+    
+    cd react-app || exit 1
+    
+    npm install
+    npm run build
+    
+    if [ $? -ne 0 ]; then
+        print_error "React app build failed"
+        exit 1
+    fi
+    
+    print_status "React app build completed successfully"
+    cd ..
+}
+
 # Main deployment function
 main() {
     print_header "=== Deploying Contact Management System to AWS ==="
     print_status "Environment: $ENVIRONMENT"
     print_status "AWS Region: $AWS_REGION"
     echo
-    
+
+    build_api
+    build_react_app
+
     check_aws_config
     deploy_infrastructure
-    # Note: Both API and React app build/upload are now handled by Terraform
     
     print_header "=== Deployment completed successfully! ==="
     show_deployment_info
