@@ -115,7 +115,7 @@ build_api(){
 build_react_app() {
     print_header "Building React app..."
     
-    cd react-app || exit 1
+    cd app || exit 1
     
     npm install
     npm run build
