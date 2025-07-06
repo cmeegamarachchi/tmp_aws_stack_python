@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: TypeScript Lambda functions
+
+Globals:
+  Function:
+    Runtime: nodejs18.x
+    Timeout: 10
+    Handler: index.handler
+    Architectures:
+      - x86_64
+
+Resources:
+  ContactsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/handlers
+      Handler: contacts.handler
+      Events:
+        GetContacts:
+          Type: Api
+          Properties:
+            Path: /contacts
+            Method: get
+
+  CountriesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/handlers
+      Handler: countries.handler
+      Events:
+        GetCountries:
+          Type: Api
+          Properties:
+            Path: /countries
+            Method: get
