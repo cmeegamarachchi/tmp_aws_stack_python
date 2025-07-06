@@ -5,6 +5,9 @@
   },
   "forwardPorts": [
   ],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:1": {}
+  },  
   "customizations": {
     "vscode": {
       "settings": {
@@ -34,12 +37,9 @@
       ]
     }
   },
-  "runArgs": [
-    "--privileged"
-  ],
-  "mounts": [
-    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
-  ],
+"mounts": [], 
+"runArgs": ["--privileged"], // required for Docker-in-Docker
   "remoteUser": "vscode",
-  "postCreateCommand": "echo 'Development environment ready! Versions:' && node --version && npm --version && aws --version && terraform --version"
+  "initializeCommand": "sudo bash .devcontainer/setup.sh",
+  "postStartCommand": "echo 'Development environment ready! Versions:' && node --version && npm --version && aws --version && terraform --version"
 }
