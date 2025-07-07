@@ -4,17 +4,23 @@
   "description": "Contacts API built with TypeScript and AWS Lambda",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp package.json dist/ || echo 'Build completed'",
+    "build:watch": "tsc --watch",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "start": "node dist/server.js",
     "clean": "rm -rf dist",
     "package": "npm run clean && npm run build && zip -r function.zip dist node_modules",
-    "test": "jest"
+    "test": "jest",
+    "sam:build": "npm run build && sam build",
+    "sam:local": "npm run sam:build && sam local start-api",
+    "sam:invoke:contacts": "npm run sam:build && sam local invoke ContactsFunction -e test-events/contacts.json",
+    "sam:invoke:countries": "npm run sam:build && sam local invoke CountriesFunction -e test-events/countries.json"
   },
   "dependencies": {
     "aws-lambda": "^1.0.7",
     "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.119",

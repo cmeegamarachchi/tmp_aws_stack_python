@@ -6,7 +6,6 @@ Globals:
   Function:
     Runtime: nodejs22.x
     Timeout: 10
-    Handler: index.handler
     Architectures:
       - x86_64
 
@@ -14,8 +13,8 @@ Resources:
   ContactsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: dist/handlers
-      Handler: contacts.handler
+      CodeUri: dist
+      Handler: handlers/contacts.handler
       Events:
         GetContacts:
           Type: Api
@@ -26,8 +25,8 @@ Resources:
   CountriesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: dist/handlers
-      Handler: countries.handler
+      CodeUri: dist
+      Handler: handlers/countries.handler
       Events:
         GetCountries:
           Type: Api
