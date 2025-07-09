@@ -3,38 +3,52 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "forwardPorts": [
-    8000
-  ],
+  "forwardPorts": [],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:1": {}
+  },
   "customizations": {
     "vscode": {
       "settings": {
         "prettier.printWidth": 120,
         "terminal.integrated.shell.linux": "/bin/bash",
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.defaultFormatter": "ms-python.black-formatter",
         "[python]": {
           "editor.formatOnSave": true,
           "editor.defaultFormatter": "ms-python.black-formatter",
         },
-      "workbench.iconTheme": "material-icon-theme"
+        "[typescript]": {
+          "editor.formatOnSave": true
+        },
+        "[javascript]": {
+          "editor.formatOnSave": true
+        },
+        "[json]": {
+          "editor.formatOnSave": true
+        },
+        "workbench.iconTheme": "material-icon-theme"
       },
       "extensions": [
         "PKief.material-icon-theme",
         "GitHub.copilot", // GitHub Copilot
         "ms-azuretools.vscode-docker", // Docker
         "humao.rest-client",
+        "hashicorp.terraform",
         "ms-python.python",
         "ms-python.vscode-pylance",
         "ms-python.black-formatter",
-        "ms-toolsai.jupyter"
+        "ms-toolsai.jupyter",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "amazonwebservices.aws-toolkit-vscode",
+        "ms-vscode.vscode-json"
       ],
     }
   },
+  "mounts": ["source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind"],
   "runArgs": [
-    "--privileged","--gpus","all"
-  ],
-  "mounts": [
-    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
-  ],
-  "remoteUser": "vscode"
+    "--privileged"
+  ], // required for Docker-in-Docker
+  "initializeCommand": "sudo bash .devcontainer/setup.sh",
+  "postStartCommand": "echo 'Development environment ready! Versions:' && node --version && npm --version && aws --version && terraform --version"
 }
