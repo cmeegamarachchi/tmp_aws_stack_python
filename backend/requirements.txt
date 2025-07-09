@@ -1,0 +1,3 @@
+# Python dependencies for the Lambda layer and functions
+boto3==1.34.0
+botocore==1.34.0

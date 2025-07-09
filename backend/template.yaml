@@ -1,0 +1,123 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Contact Management API using SAM
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.10
+    Layers:
+      - !Ref ContactLayer
+    Environment:
+      Variables:
+        PYTHONPATH: /opt/python
+
+Resources:
+  # Contact Layer
+  ContactLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: contact-layer
+      Description: Shared contact management logic
+      ContentUri: src/layers/contact_layer/
+      CompatibleRuntimes:
+        - python3.10
+    Metadata:
+      BuildMethod: python3.10
+
+  # API Gateway
+  ContactApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+
+  # Lambda Functions
+  ListContactsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/lambda_functions/
+      Handler: list_contacts.lambda_handler
+      Events:
+        ListContacts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ContactApi
+            Path: /contacts
+            Method: get
+        OptionsContacts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ContactApi
+            Path: /contacts
+            Method: options
+
+  GetContactFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/lambda_functions/
+      Handler: get_contact.lambda_handler
+      Events:
+        GetContact:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ContactApi
+            Path: /contacts/{id}
+            Method: get
+        OptionsContact:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ContactApi
+            Path: /contacts/{id}
+            Method: options
+
+  CreateContactFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/lambda_functions/
+      Handler: create_contact.lambda_handler
+      Events:
+        CreateContact:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ContactApi
+            Path: /contacts
+            Method: post
+
+  UpdateContactFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/lambda_functions/
+      Handler: update_contact.lambda_handler
+      Events:
+        UpdateContact:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ContactApi
+            Path: /contacts/{id}
+            Method: put
+
+  DeleteContactFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/lambda_functions/
+      Handler: delete_contact.lambda_handler
+      Events:
+        DeleteContact:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ContactApi
+            Path: /contacts/{id}
+            Method: delete
+
+Outputs:
+  ContactApi:
+    Description: "API Gateway endpoint URL for dev stage"
+    Value: !Sub "https://${ContactApi}.execute-api.${AWS::Region}.amazonaws.com/dev/"
+  
+  ContactApiId:
+    Description: "API Gateway ID"
+    Value: !Ref ContactApi
