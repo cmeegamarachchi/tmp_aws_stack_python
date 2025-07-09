@@ -50,5 +50,5 @@
     "--privileged"
   ], // required for Docker-in-Docker
   "initializeCommand": "sudo bash .devcontainer/setup.sh",
-  "postStartCommand": "echo 'Development environment ready! Versions:' && node --version && npm --version && aws --version && terraform --version"
+  "postStartCommand": "echo 'Development environment ready! Versions:' && node --version && npm --version && python3 --version && aws --version && terraform --version"
 }
