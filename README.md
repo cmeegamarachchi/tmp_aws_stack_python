@@ -4,7 +4,7 @@ A modern contact management application built with React frontend and Python Lam
 
 ## Architecture
 
-- **Frontend**: React with Vite, TypeScript, and Tailwind CSS
+- **Frontend**: React with Vite, TypeScript, and Tailwind CSS hosted on S3 with CloudFront CDN
 - **Backend**: Python Lambda functions with layers
 - **API**: AWS API Gateway
 - **Infrastructure**: Terraform for AWS deployment
@@ -21,6 +21,8 @@ A modern contact management application built with React frontend and Python Lam
 - ✅ Responsive design
 - ✅ Form validation
 - ✅ Error handling
+- ✅ AWS deployment with CloudFront CDN
+- ✅ Automated build and deployment scripts
 
 ## Project Structure
 
@@ -40,10 +42,80 @@ A modern contact management application built with React frontend and Python Lam
 │   ├── template.yaml            # SAM template
 │   └── requirements.txt
 ├── infrastructure/           # Terraform configuration
-│   ├── main.tf
-│   ├── api_gateway.tf
+│   ├── main.tf              # Main infrastructure
+│   ├── api_gateway.tf       # API Gateway configuration
 │   └── README.md
+├── scripts/                  # Deployment scripts
+│   ├── deploy.sh            # Main deployment script
+│   ├── deploy-frontend.sh   # Frontend-only deployment
+│   └── destroy.sh           # Infrastructure cleanup
 └── README.md
+```
+
+## Quick Start
+
+### Prerequisites
+
+- AWS CLI configured with appropriate credentials
+- Terraform >= 1.0
+- Node.js >= 18
+- Python 3.9
+- Docker (for SAM local testing)
+
+### Deploy to AWS
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd contact-manager
+   ```
+
+2. **Deploy everything**
+   ```bash
+   ./scripts/deploy.sh
+   ```
+
+3. **Deploy specific components**
+   ```bash
+   # Infrastructure only
+   ./scripts/deploy.sh --infrastructure-only
+   
+   # Frontend only (requires infrastructure to be deployed first)
+   ./scripts/deploy.sh --frontend-only
+   ```
+
+4. **Custom environment**
+   ```bash
+   ./scripts/deploy.sh --environment prod --region us-west-2
+   ```
+
+### Local Development
+
+1. **Start the backend locally**
+   ```bash
+   cd backend
+   sam local start-api --port 3001
+   ```
+
+2. **Start the frontend locally**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+3. **Visit** `http://localhost:5173`
+
+### Cleanup
+
+To destroy all AWS resources:
+```bash
+./scripts/destroy.sh
+```
+
+Or with force (skip confirmation):
+```bash
+./scripts/destroy.sh --force
 ```
 
 ## Contact Data Format
@@ -100,12 +172,54 @@ terraform apply
 
 ## Environment Variables
 
-### Frontend (.env.local)
-```
-VITE_API_URL=http://localhost:3001/dev
-```
+### Frontend
 
-For production, update with your actual API Gateway URL.
+The frontend automatically picks up environment variables from:
+
+- `.env.development` - for local development
+- `.env.production` - generated automatically during deployment
+
+**Required variables:**
+- `VITE_API_BASE_URL` - API Gateway URL (e.g., `https://api123.execute-api.us-east-1.amazonaws.com/dev`)
+- `VITE_ENVIRONMENT` - Environment name (dev, staging, prod)
+
+### Backend
+
+Lambda functions use environment variables set by Terraform:
+- `PYTHONPATH=/opt/python` - for layer imports
+
+## Deployment Architecture
+
+### AWS Services Used
+
+1. **S3** - Static website hosting for React frontend
+2. **CloudFront** - CDN for global content delivery
+3. **API Gateway** - REST API for backend endpoints
+4. **Lambda** - Serverless functions for business logic
+5. **Lambda Layers** - Shared code and dependencies
+6. **IAM** - Security roles and policies
+
+### Deployment Process
+
+1. **Infrastructure Deployment** (Terraform)
+   - Creates S3 bucket with static website hosting
+   - Sets up CloudFront distribution
+   - Deploys Lambda functions and layers
+   - Configures API Gateway with CORS
+   - Sets up IAM roles and policies
+
+2. **Frontend Deployment**
+   - Builds React app with Vite
+   - Configures API URL from Terraform outputs
+   - Uploads to S3 bucket
+   - Invalidates CloudFront cache
+
+### Security Features
+
+- S3 bucket with proper public access policies
+- CloudFront Origin Access Control (OAC)
+- CORS configuration for cross-origin requests
+- IAM roles with least privilege access
 
 ## API Endpoints
 

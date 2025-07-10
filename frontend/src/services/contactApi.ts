@@ -1,8 +1,10 @@
 import axios from "axios";
 import type { Contact, ApiResponse } from "../types/contact";
 
-// This will be configurable for different environments
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/dev";
+// Get API base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/dev";
+
+console.log("API Base URL:", API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,

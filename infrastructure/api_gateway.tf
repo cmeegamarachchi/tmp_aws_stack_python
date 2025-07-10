@@ -221,6 +221,32 @@ resource "aws_lambda_permission" "delete_contact" {
   source_arn    = "${aws_api_gateway_rest_api.contact_api.execution_arn}/*/*"
 }
 
+# Health check endpoint
+resource "aws_api_gateway_method" "health_check" {
+  rest_api_id   = aws_api_gateway_rest_api.contact_api.id
+  resource_id   = aws_api_gateway_resource.health.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "health_check" {
+  rest_api_id = aws_api_gateway_rest_api.contact_api.id
+  resource_id = aws_api_gateway_resource.health.id
+  http_method = aws_api_gateway_method.health_check.http_method
+  
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.health_check.invoke_arn
+}
+
+resource "aws_lambda_permission" "health_check" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.health_check.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.contact_api.execution_arn}/*/*"
+}
+
 # API Gateway deployment
 resource "aws_api_gateway_deployment" "contact_api_deployment" {
   depends_on = [
@@ -229,18 +255,48 @@ resource "aws_api_gateway_deployment" "contact_api_deployment" {
     aws_api_gateway_integration.create_contact,
     aws_api_gateway_integration.update_contact,
     aws_api_gateway_integration.delete_contact,
+    aws_api_gateway_integration.health_check,
     aws_api_gateway_integration.contacts_options,
     aws_api_gateway_integration.contact_by_id_options,
   ]
 
   rest_api_id = aws_api_gateway_rest_api.contact_api.id
-  stage_name  = var.environment
+
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_resource.contacts.id,
+      aws_api_gateway_resource.contact_by_id.id,
+      aws_api_gateway_resource.health.id,
+      aws_api_gateway_method.list_contacts.id,
+      aws_api_gateway_method.get_contact.id,
+      aws_api_gateway_method.create_contact.id,
+      aws_api_gateway_method.update_contact.id,
+      aws_api_gateway_method.delete_contact.id,
+      aws_api_gateway_method.health_check.id,
+      aws_api_gateway_integration.list_contacts.id,
+      aws_api_gateway_integration.get_contact.id,
+      aws_api_gateway_integration.create_contact.id,
+      aws_api_gateway_integration.update_contact.id,
+      aws_api_gateway_integration.delete_contact.id,
+      aws_api_gateway_integration.health_check.id,
+    ]))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_api_gateway_stage" "contact_api_stage" {
+  deployment_id = aws_api_gateway_deployment.contact_api_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.contact_api.id
+  stage_name    = var.environment
 }
 
 # Outputs
 output "api_gateway_url" {
   description = "API Gateway URL"
-  value       = "${aws_api_gateway_deployment.contact_api_deployment.invoke_url}"
+  value       = "https://${aws_api_gateway_rest_api.contact_api.id}.execute-api.${var.aws_region}.amazonaws.com/${aws_api_gateway_stage.contact_api_stage.stage_name}"
 }
 
 output "api_gateway_id" {
