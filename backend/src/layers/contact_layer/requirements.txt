@@ -1,2 +1,0 @@
-# Dependencies for the contact layer
-# boto3 and botocore are included in Lambda runtime
